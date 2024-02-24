@@ -24,6 +24,7 @@ def process_dataset(source_folder, out_folder):
         np.save(dest_path,out_arr)
 
     no_defect_images_folder = os.path.join(source_folder, "NODefect_images")
+    
     for subfolder_name in os.listdir(no_defect_images_folder):
         subfolder_path = os.path.join(no_defect_images_folder, subfolder_name)
         if os.path.isdir(subfolder_path):
