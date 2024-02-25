@@ -1,6 +1,7 @@
 papers/
 archive/
 trash/
+*.pyc
 *.mp4
 *.png
 *.jpg
