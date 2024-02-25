@@ -7,6 +7,8 @@ import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader, RandomSampler
 from sklearn.model_selection import train_test_split
 from imblearn.over_sampling import SMOTE
+import cv2
+import pywt
 
 """
 This file contains functions and classes utilized in data processing and model training
@@ -308,3 +310,70 @@ def get_windowed_output(source_dir, test_split = 0.2, val_split=0.15):
     X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=val_split, random_state=81)
 
     return X_train, X_val, X_test, y_train, y_val, y_test
+
+
+# SINGLE IMAGE PROCESSING THROUGH MODELS
+
+
+def image_to_dwtchannels(img_loc):
+    # converts single image to 7 channel discrete wavelet
+    # transform array and returns it 
+
+    img = cv2.imread(img_loc, cv2.IMREAD_GRAYSCALE)
+
+    # smooth image before applying DWT
+    blur_img = cv2.GaussianBlur(img,(11,11),0)
+
+    # apply discrete wavelet transform to image
+    wavelets = pywt.wavedec2(blur_img, 'db3',  level=2)
+
+    out_arr = np.zeros((7,40,500))
+
+    # resize all wavelet transform outputs to smallest result shape
+    out_arr[0,:,:] =cv2.resize(wavelets[0], (500,40))
+    for i in range(3):
+        out_arr[i+1,:,:] = cv2.resize(wavelets[1][i], (500,40))
+        out_arr[i+4,:,:] = cv2.resize(wavelets[2][i], (500,40))
+
+    return out_arr
+
+def get_networks(model_dir, result_model_dir):
+    # fetch two relevant networks
+
+    net = Net()
+    net.load_state_dict(torch.load(model_dir))
+    net.eval()
+
+    result_net = Net_result()
+    result_net.load_state_dict(torch.load(result_model_dir))
+    result_net.eval()
+
+    return net, result_net
+
+def retrieve_window_info(net,img):
+    # gets results of windowed model for single pre processed image
+
+    net.eval()
+
+    # set forward hook
+    activations = []
+    def retrieveActivations():
+        def hook(model, input, output):
+            activations.append(output.detach().numpy())
+        return hook
+
+    hook_layer = net.fc2.register_forward_hook(retrieveActivations())
+
+    # apply sliding window to image and store the window activations using the hook
+    im_win, _ = get_windowed_data(img.reshape(1,7,40,500),np.zeros(((1,1,40,500))))
+    im_win = torch.from_numpy(im_win).type(torch.FloatTensor)
+    outs_np = net(im_win)
+
+    hook_layer.remove()
+
+    # return the activations in a pytorch tensor with 1 element (84 x 10 x 240)
+    
+    outs_np = activations[0].transpose().reshape((84,10,240))
+    outs_torch = torch.from_numpy(outs_np.reshape((1,84,10,240))).type(torch.FloatTensor)
+
+    return outs_torch
