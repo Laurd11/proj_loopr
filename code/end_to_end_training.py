@@ -23,6 +23,7 @@ process_masks(source_dir, mask_dir)
 
 print("Processed DWT All Images")
 
+
 # WINDOW MODEL TRAINING
 
 epchs = 70
@@ -81,12 +82,13 @@ for el in range(len(activations)):
     np.save(os.path.join(window_out_loc,name_list[el]),outs_np)
 print("All Images processed through Windowed Model")
 
+
 # RESULT MODEL TRAINING
 epchs = 50
 
 # get pre-processed data with 84 channel windowed images resulting from the first model
 # separates them into sub datasets necessary for training.
-X_train, X_val, X_test, labels, val_labels, test_labels = get_windowed_output(source_dir)
+X_train, X_val, X_test, labels, val_labels, test_labels = get_windowed_output(window_out_loc)
 print("Activation data loaded")
 
 # create CNN instance
