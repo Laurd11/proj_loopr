@@ -1,10 +1,8 @@
 import numpy as np
-import cv2
-import pywt
+import torch
 import os
 
 from utils import *
-from pre_processing import process_dataset, process_masks
 
 """
 This script executes the training process from end to end, starting with the images in the archive.
