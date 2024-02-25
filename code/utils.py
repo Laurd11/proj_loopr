@@ -169,7 +169,7 @@ def get_processed_data(source_dir, mask_dir, test_split = 0.2,val_split=0.15):
 
 def training_procedure(net, X_train, X_val, labels, val_labels, dest_fol, total_epochs = 60, learning_rate=5e-5, sgd_batch = 80000):
     # basic training procedure for NN, training, and validation sets input. Expects numpy arrays for features and labels
-    # Requires dest_fol file path for outputs of model save points and loss history vectors
+    # Requires dest_fol file path for outputs of model save points 
     # returns trained network, training loss vector history, and validation loss vector history
 
     # Utilizes basic binary Cross Entropy Loss and Adam optimizer as well as fixed batch size of 50
