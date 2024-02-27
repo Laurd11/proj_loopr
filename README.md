@@ -1,5 +1,7 @@
 ## Basic Model Overview:
 
+A short presentation of model overview can be found [here](https://drive.google.com/file/d/1lDnI9lwXK0KDsFMY97jHxvC2i3iyQiLL/view?usp=sharing).
+
 * Each image is processed via Discrete Wavelet Transform into a 7 channel image that is 40 x 500, rather than 256 x 4096. Each channel represents a different level and directionality of wavelet.
 * From these, sliding window squares (7 x 22 x 22) are extracted row and columnwise from  the preprocessed images. 
 * The 7 channel squares from the Defect Images are used to train a "Windowed Model". The output is binary and the loss is computed based on the presence of any defects in that window given the information from the corresponding image mask.
